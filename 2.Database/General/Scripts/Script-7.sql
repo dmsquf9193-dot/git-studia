@@ -1,4 +1,4 @@
--- INNER JOIN - 교집합의 값만 조회
+-- INNER JOIN - 교집합의 값만 조회, 나머지는 보이지 않음, 테이블 별칭을 줘야함
 -- FROM이 기준임 JOIN은 굴러들어온 돌임
 -- 사번, 이름, 연봉 조회
 SELECT e.emp_no, e.first_name, s.salary 
@@ -33,13 +33,13 @@ JOIN titles t
 ON  e.emp_no = t.emp_no
 WHERE t.to_date = '9999-01-01';
 
--- LEFT JOIN 비워져 있어도 왼쪽에오면 한바가지 채워져있음ㅋ
+-- LEFT JOIN 비워져 있어도 교집합과 왼쪽에 값은 채워져있음ㅋ
 SELECT *
 FROM departments d
 LEFT JOIN dept_manager dm
 ON d.dept_no = dm.dept_no;
 
--- right join 비워져 있어도 오른쪽에 오면 한바가지 채워져있음
+-- right join 비워져 있어도 교집합과 오른쪽에 값은 채워져있음
 SELECT *
 FROM dept_manager dm
 RIGHT JOIN departments d

@@ -1,3 +1,4 @@
+-- 메인쿼리 안에 하나 더 들어가있는 서브쿼리(소괄호 사용)
 -- 입사일이 1993년 2월 19일 이면서 생일1964년 10월 24일 직원의 이름을 구하고 
 -- 다시 해당 이름으로 조건을 검색해서 사번(emp_no)를 구해야 하는 경우
 
@@ -21,6 +22,7 @@ AND last_name = (SELECT last_name
                  WHERE hire_date = '1993-02-19'
                  AND birth_date = '1964-10-24');
 
+-- 서브쿼리 합치기
 SELECT emp_no
 FROM employees
 WHERE (first_name, last_name ) = (SELECT first_name, last_name 
@@ -60,6 +62,7 @@ WHERE emp_no = (SELECT emp_no
                 ORDER BY salary DESC 
                 LIMIT 1);
 
+-- 단일행 서브쿼리는 비교연산자 사용
 SELECT first_name, last_name 
 FROM employees
 WHERE emp_no >= (SELECT avg(emp_no) 
@@ -81,6 +84,80 @@ WHERE salary IN (SELECT salary
 SELECT salary
 FROM salaries s
 ORDER BY salary DESC;
+
+-- 다중열 다중행 서브쿼리 
+SELECT *
+FROM salaries s 
+WHERE (emp_no, salary) IN (SELECT emp_no, max(salary)
+                           FROM salaries
+                           GROUP BY emp_no);
+
+-- 현재 직급정보
+SELECT emp_no, title, to_date
+FROM titles 
+WHERE (emp_no, to_date) IN (SELECT emp_no, MAX(to_date)
+                            FROM titles
+                            GROUP BY emp_no);
+
+SELECT * FROM salaries;
+
+-- 가장 최근까지 연봉을 받은 사람
+SELECT emp_no, salary, to_date
+FROM salaries
+WHERE (emp_no, to_date) IN (SELECT emp_no, max(to_date)
+                            FROM salaries
+                            GROUP BY emp_no);
+
+-- Q1. 첫 입사 부서를 조회하세요.
+SELECT emp_no, dept_no, from_date
+FROM dept_emp
+WHERE (emp_no, from_date) IN (SELECT emp_no, min(from_date)
+                              FROM dept_emp                        
+                              GROUP BY emp_no);
+
+-- <인라인 뷰>
+-- 인라인 뷰는 서브쿼리에서 FROM 절 안에 작성되는 서브쿼리
+-- 마치 임시 테이블처럼 동작하며, 쿼리가 실행되는 동안에만 존재
+SELECT *
+FROM (SELECT de.dept_no, avg(s.salary)
+      FROM dept_emp de
+      JOIN salaries s ON de.emp_no = s.emp_no
+      GROUP BY de.dept_no) a; 
+
+
+SELECT *
+FROM (SELECT emp_no, salary, salary*1.1 AS increment_salary
+      FROM salaries
+      ORDER BY increment_salary DESC 
+      LIMIT 3) a -- (테이블명)
+WHERE increment_salary >= 170000;
+
+-- dept_no, 평균 연봉(salary)을 조회 (인라인뷰)
+-- 메인쿼리에서 평균 연봉이 70000 이상인 부서만 조회
+SELECT *
+FROM (SELECT dept_no, avg(salary) AS avg_salary -- (별칭)
+      FROM dept_emp de
+      JOIN salaries s ON de.emp_no = s.emp_no 
+      GROUP BY dept_no) t
+WHERE avg_salary >= 70000;
+
+-- Q2.
+SELECT *
+FROM (SELECT emp_no, avg(salary) AS avg_salary 
+      FROM salaries
+      GROUP BY emp_no) t -- (테이블 이름 무조건 지정)
+WHERE avg_salary >= 80000;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
